@@ -1,0 +1,1 @@
+db.getCollection("machine1000000").find({Job_ID:8, Job_order:{$gte:0, $lte:18}, Observer:false})
