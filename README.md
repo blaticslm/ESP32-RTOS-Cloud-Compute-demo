@@ -35,9 +35,11 @@ This is a small-scale edge-to-cloud application. Tesla collects road data and se
 ![micro_controller_upload_process](https://github.com/blaticslm/ESP32-RTOS-Cloud-Compute-demo/assets/47236078/dc341cb5-57ac-4cbb-a757-e0cdb5c4eaa3)
 
 ## Server
+### The server is using Go Language to write
 ![图片](https://github.com/blaticslm/ESP32-RTOS-Cloud-Compute-demo/assets/47236078/a314aa4a-14f4-4679-aeae-0914fe764811)
 
 ## Database Architecture
+### The database is MongoFB
 ![229964391-f5841ff9-3207-4ff4-a074-1adcfb7bb369](https://github.com/blaticslm/ESP32-RTOS-Cloud-Compute-demo/assets/47236078/e59a49c1-4284-4ca3-b42c-cbddfb07be1a)
 
 
