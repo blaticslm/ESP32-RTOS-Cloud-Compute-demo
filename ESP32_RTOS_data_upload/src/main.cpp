@@ -9,29 +9,38 @@
 #include <cmath>
 #include "Certificate_Meduroam.h"
 
-//FreeRTOS parameters
+//Creator: Mingcheng Li
+//Date: 5/23/2024
+
+//FreeRTOS parameters of ESP32
 #define TASK2_STACK_SIZE 1<<12
 #define TASK1_STACK_SIZE 1<<13
 #define DOCSIZE 384400 
 
-//Machine ID
+//Machine ID, please see section of Database topology in Readme
 #define MACHINE_ID 30
 
+//Sensor calibration, change it accordingly to your project
 //ADXL335 calibrations
 #define XRawMin 649
 #define YRawMin 670
 #define XRawMax 3139
 #define YRawMax 3160
 
-//pins
+//pins, see ESP32 pinout map
 #define x_pin 33
 #define y_pin 32
 #define SWITCH_PIN 4
 #define LED_PIN 2
+
+// My application uses second serial
+// I did not find GPIO25 and 26 to be a UART port but it works
+// GPIO16 and 17 are for external rams. 
 #define RXD2 26
 #define TXD2 25
 
-//SpiRam method
+//SpiRam method, I am using exteral RAM of ESP32 Wrover-E chip
+// https://arduinojson.org/v6/how-to/use-external-ram-on-esp32/
 struct SpiRamAllocator {
   void* allocate(size_t size) {
     return heap_caps_malloc(size, MALLOC_CAP_SPIRAM);
@@ -48,14 +57,17 @@ struct SpiRamAllocator {
 using SpiRamJsonDocument = BasicJsonDocument<SpiRamAllocator>;
 
 //Base URL
+//Change accordingly to your server
 const char* PRE_ADDR = "http://3.21.128.133:8080";
 
 //Timezone: America/Detroit
+//When connecting to WAP2 enterprise WiFI, we need to setup the right time for machine 
+//The code below is the EST
 const char *ntpServer = "pool.ntp.org";
 const char *timezoneEST = "EST5EDT,M3.2.0/2,M11.1.0";
 
 
-//buffer and task switching variables
+//buffer and task switching variables, please see MCU program section
 bool task1docInit = true;
 bool task2docInit = false;
 bool processing = false; 
@@ -67,12 +79,21 @@ int job_id = 1;
 //Unused Z variable
 int layer = 1;
 
-int counter = 0; //for determining the collection and sending 
-unsigned long job_order = 1; //the _id field, start at one
+//for determining the collection and sending 
+//Please see MCU program section
+int counter = 0; 
+
+//the _id field, start at one. This is overriding the database ID.
+// Overriding the _ID field is easier for us to get the data (if the database is MongoDB)
+unsigned long job_order = 1; 
+
 
 //functional variables
 TaskHandle_t Task1;
 TaskHandle_t Task2; 
+
+// SpiRamJson can't be initialized in the void setup()
+// I declared two global SpiRamJson pointers so that two tasks can directly use them
 SpiRamJsonDocument *holder1;
 SpiRamJsonDocument *holder2;
 
@@ -100,6 +121,7 @@ void setup() {
   WiFi.mode(WIFI_STA);   //init wifi mode
 
   //School wifi
+  //You need to donload your school's ca_certificate
   Serial.printf("Connecting to WiFi: %s ", SSID1);
   esp_wifi_sta_wpa2_ent_set_ca_cert((uint8_t *)incommon_ca, strlen(incommon_ca)+1);
   esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)IDENTITY, strlen(IDENTITY));
