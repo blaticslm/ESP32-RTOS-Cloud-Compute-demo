@@ -270,7 +270,7 @@ void Task1code( void * pvParameters ) {
         object = group_data2.createNestedArray("group_data"); 
         
       }
-      processing = true;
+      processing = true; //Sending process is working
     }
 
     //waiting for the serial window has new information
